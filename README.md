@@ -16,7 +16,7 @@ The Sign Language Translator is my final project for Minor Project. Its purpose 
 - [x] Simple User Interface
 - [x] Comprehensive Commenting
 
-## Live Sign Translator on https://bit.ly/2CwPvgP
+## Live Sign Translator on 
 
 ## To Run locally 
 Open `index.html` in Chrome.<br/>
