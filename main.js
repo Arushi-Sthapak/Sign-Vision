@@ -137,90 +137,102 @@ class Main {
 
   /*This function initializes the training for Start and Stop Gestures. It also 
   sets a click listener for the next button.*/
-  initialTraining() {
-    // if next button on initial training page is pressed, setup the custom gesture training UI.
-    this.nextButton.addEventListener('click', () => {
-      const exampleCount = this.knn.getClassExampleCount();
-      if (Math.max(...exampleCount) > 0) {
-        // if start gesture has not been trained
-        if (exampleCount[0] == 0) {
-          alert('You haven\'t added examples for the Start Gesture');
-          return;
-        }
-
-        // if stop gesture has not been trained
-        if (exampleCount[1] == 0) {
-          alert('You haven\'t added examples for the Stop Gesture.\n\nCapture yourself in idle states e.g hands by your side, empty background etc.');
-          return;
-        }
-
-        this.nextButton.style.display = "none";
-        this.stageTitle.innerText = "Continue Training";
-        this.stageInstruction.innerText = "Add Gesture Name and Train.";
-
-        //Start custom gesture training process
-        this.setupTrainingUI();
+initialTraining() {
+  // if next button on initial training page is pressed, setup the custom gesture training UI.
+  this.nextButton.addEventListener('click', () => {
+    const exampleCount = this.knn.getClassExampleCount();
+    if (Math.max(...exampleCount) > 0) {
+      // if start gesture has not been trained
+      if (exampleCount[0] == 0) {
+        alert('You haven\'t added examples for the Start Gesture');
+        return;
       }
-    });
 
-    //Create initial training buttons
-    this.initialGestures(0, "startButton");
-    this.initialGestures(1, "stopButton");
-  }
+      // if stop gesture has not been trained
+      if (exampleCount[1] == 0) {
+        alert('You haven\'t added examples for the Stop Gesture.\n\nCapture yourself in idle states e.g hands by your side, empty background etc.');
+        return;
+      }
 
-  //This function loads the kNN classifier
-  loadKNN() {
-    this.knn = new KNNImageClassifier(words.length, TOPK);
+      this.nextButton.style.display = "none";
+      this.stageTitle.innerText = "Continue Training";
+      this.stageInstruction.innerText = "Add Gesture Name and Train.";
 
-    // Load knn model
-    this.knn.load().then(() => this.initializeTraining());
-  }
-
-  /*This creates the training and clear buttons for the initial Start and Stop gesture. 
-  It also creates the Gesture Card.*/
-  initialGestures(i, btnType) {
-    // Get specified training button
-    var trainBtn = document.getElementById(btnType);
-
-    // Call training function for this gesture on click
-    trainBtn.addEventListener('click', () => {
-      this.train(i);
-    });
-
-    // Clear button to remove training examples on click
-    var clearBtn = document.getElementById('clear_' + btnType);
-    clearBtn.addEventListener('click', () => {
-      this.knn.clearClass(i);
-      this.exampleCountDisplay[i].innerText = " 0 examples";
-      this.gestureCards[i].removeChild(this.gestureCards[i].childNodes[1]);
-      this.checkMarks[i].src = "Images\\loader.gif";
-    });
-
-    // Variables for training information for the user
-    var exampleCountDisplay = document.getElementById('counter_' + btnType);
-    var checkMark = document.getElementById('checkmark_' + btnType);
-
-    // Create Gesture Card
-    var gestureCard = document.createElement("div");
-    gestureCard.className = "trained-gestures";
-
-    var gestName = "";
-    if (i == 0) {
-      gestName = "Start";
-    } else {
-      gestName = "Stop";
+      //Start custom gesture training process
+      this.setupTrainingUI();
     }
-    var gestureName = document.createElement("h5");
-    gestureName.innerText = gestName;
-    gestureCard.appendChild(gestureName);
-    this.trainedCardsHolder.appendChild(gestureCard);
+  });
 
-    exampleCountDisplay.innerText = " 0 examples";
-    checkMark.src = 'Images\\loader.gif';
-    this.exampleCountDisplay.push(exampleCountDisplay);
-    this.checkMarks.push(checkMark);
-    this.gestureCards.push(gestureCard);
+  //Create initial training buttons
+  this.initialGestures(0, "startButton");
+  this.initialGestures(1, "stopButton");
+}
+
+// After line 145: Add a new function to handle the loop
+addExamples(gestureIndex) {
+  const numIterations = 30; // Number of iterations for the loop
+  for (let i = 0; i < numIterations; i++) {
+    setTimeout(() => {
+      this.train(gestureIndex); // Call the train function to add an example
+    }, i * 100); // Adjust the delay as needed (e.g., 100 milliseconds)
   }
+}
+
+//This function loads the kNN classifier
+loadKNN() {
+  this.knn = new KNNImageClassifier(words.length, TOPK);
+
+  // Load knn model
+  this.knn.load().then(() => this.initializeTraining());
+}
+
+/*This creates the training and clear buttons for the initial Start and Stop gesture. 
+  It also creates the Gesture Card.*/
+initialGestures(i, btnType) {
+  // Get specified training button
+  var trainBtn = document.getElementById(btnType);
+
+  // Call training function for this gesture on click
+  trainBtn.addEventListener('click', () => {
+    this.addExamples(i); // Call the new function to handle the loop
+  });
+
+  // Clear button to remove training examples on click
+  var clearBtn = document.getElementById('clear_' + btnType);
+  clearBtn.addEventListener('click', () => {
+    this.knn.clearClass(i);
+    this.exampleCountDisplay[i].innerText = " 0 examples";
+    this.gestureCards[i].removeChild(this.gestureCards[i].childNodes[1]);
+    this.checkMarks[i].src = "Images\\loader.gif";
+  });
+
+  // Variables for training information for the user
+  var exampleCountDisplay = document.getElementById('counter_' + btnType);
+  var checkMark = document.getElementById('checkmark_' + btnType);
+
+  // Create Gesture Card
+  var gestureCard = document.createElement("div");
+  gestureCard.className = "trained-gestures";
+
+  var gestName = "";
+  if (i == 0) {
+    gestName = "Start";
+  } else {
+    gestName = "Stop";
+  }
+  var gestureName = document.createElement("h5");
+  gestureName.innerText = gestName;
+  gestureCard.appendChild(gestureName);
+  this.trainedCardsHolder.appendChild(gestureCard);
+
+  exampleCountDisplay.innerText = " 0 examples";
+  checkMark.src = 'Images\\loader.gif';
+  this.exampleCountDisplay.push(exampleCountDisplay);
+  this.checkMarks.push(checkMark);
+  this.gestureCards.push(gestureCard);
+}
+
+
 
   /*This function sets up the custom gesture training UI.*/
   setupTrainingUI() {
@@ -296,7 +308,7 @@ class Main {
 
     // Change training class from none to specified class if training button is pressed
     trainBtn.addEventListener('mousedown', () => {
-      this.train(i);
+      this.addExamples(i);
     });
 
     // Create clear button to remove training examples on click
