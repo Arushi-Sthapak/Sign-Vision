@@ -308,7 +308,7 @@ initialGestures(i, btnType) {
 
     // Change training class from none to specified class if training button is pressed
     trainBtn.addEventListener('mousedown', () => {
-      this.train(i);
+      this.addExamples(i);
     });
 
     // Create clear button to remove training examples on click
